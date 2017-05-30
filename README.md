@@ -1,3 +1,39 @@
+Forked Thumbnailator to see if we can keep exif metadata after resizing.
+
+Figured out we didn't need Thumbnailator for that.
+Just do:
+
+```
+# pom.xml - dependencies
+<dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-imaging</artifactId>
+      <version>1.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>1.3.2</version>
+    <dependency>
+
+
+File originalImage = new File("/Users/rnair/Downloads/test.jpg");
+File outputFile = new File("/Users/rnair/Downloads/test_thumb.jpg");
+
+Thumbnails.of(originalImage).outputQuality(0.5).outputFormat("jpg").scale(0.1).toFile(outputFile);
+
+# Put in appropriate null checks and type casting for JpegImageMetadata.
+final JpegImageMetadata jpegMetadata = (JpegImageMetadata) Imaging.getMetadata(originalImage);
+final TiffImageMetadata exif = jpegMetadata.getExif();
+TiffOutputSet outputSet = exif.getOutputSet();
+
+OutputStream os = new BufferedOutputStream(
+	new FileOutputStream(new File("/Users/rnair/Downloads/exif_test_thumb.jpg")));
+new ExifRewriter().updateExifMetadataLossless(outputFile, os, outputSet);
+
+```
+
+
 _*December 1, 2014: Thumbnailator 0.4.8 has just been released!
 See [Changes](https://github.com/coobird/thumbnailator/wiki/Changes) for details.*_
 
